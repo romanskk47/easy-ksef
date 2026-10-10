@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Pomoc krok po kroku
+    url: https://github.com/romanskk47/easy-ksef/blob/main/docs/pomoc.md
+    about: Pobieranie, brakujące faktury, token, eksport i foldery.
+  - name: Prywatne zgłoszenie luki bezpieczeństwa
+    url: https://github.com/romanskk47/easy-ksef/security/advisories/new
+    about: Nie publikuj podatności, tokena ani faktur w zwykłym zgłoszeniu.

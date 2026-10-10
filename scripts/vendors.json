@@ -1,0 +1,10 @@
+{
+  "ksef-client-csharp": {
+    "repository": "https://github.com/CIRFMF/ksef-client-csharp.git",
+    "commit": "4b3f051a4669dd1d11e0a41c2527159028c10820"
+  },
+  "ksef-pdf-generator": {
+    "repository": "https://github.com/CIRFMF/ksef-pdf-generator.git",
+    "commit": "f59fc4e2addcf42c74b1674e7c1d534085bc3a84"
+  }
+}

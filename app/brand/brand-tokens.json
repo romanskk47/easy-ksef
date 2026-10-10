@@ -1,0 +1,35 @@
+{
+  "name": "Easy KSeF",
+  "approvedVariant": "A — czerwone e, grafitowe K",
+  "colors": {
+    "primary": "#245B96",
+    "primaryHover": "#1C4B7E",
+    "primaryPressed": "#163D68",
+    "ink": "#20272E",
+    "background": "#F4F5F7",
+    "surface": "#FFFFFF",
+    "border": "#D7DDE3",
+    "muted": "#5D6773",
+    "selected": "#EDF4FC",
+    "selectedBorder": "#C3D8EE",
+    "focus": "#245B96",
+    "successText": "#155B48",
+    "successBackground": "#F1F7F4",
+    "warningText": "#785014",
+    "warningBackground": "#FFF7E7",
+    "errorText": "#9B2424",
+    "errorBackground": "#FFF4F2",
+    "brandMark": "#C62838"
+  },
+  "assets": {
+    "logo": "easy-ksef-logo-1200.png",
+    "logoMaster": "easy-ksef-logo.png",
+    "mark": "easy-ksef-mark.png",
+    "macIcon": "easy-ksef.icns",
+    "windowsIcon": "easy-ksef.ico",
+    "favicon": "favicon.ico",
+    "reference": "approved-reference.png"
+  },
+  "sourceReference": "https://ksef.podatki.gov.pl/",
+  "note": "Czerwień logo jest kolorem marki. Niebieski oznacza akcje, aktywne elementy i zaznaczenia; czerwony w interfejsie oznacza błąd lub działanie destrukcyjne. Nie jest to oficjalny zestaw tokenów Ministerstwa Finansów."
+}

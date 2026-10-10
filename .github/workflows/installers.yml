@@ -1,0 +1,121 @@
+name: Testy i instalatory
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: installers-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            runner: windows-2025
+            arch: x64
+            rid: win-x64
+          - name: macOS Apple Silicon
+            runner: macos-15
+            arch: arm64
+            rid: osx-arm64
+          - name: macOS Intel
+            runner: macos-15-intel
+            arch: x64
+            rid: osx-x64
+          - name: Linux x64
+            runner: ubuntu-22.04
+            arch: x64
+            rid: linux-x64
+    env:
+      EASY_KSEF_ARCH: ${{ matrix.arch }}
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24.14.0'
+          cache: npm
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '10.0.401'
+      - name: Linux display and packaging dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y xvfb libgtk-3-0 libnss3 libgbm1 libasound2 libsecret-1-0 libfuse2
+      - name: Verify release tag and runtime
+        shell: bash
+        run: |
+          node -e "if (process.arch !== process.env.EASY_KSEF_ARCH) throw new Error('Wrong runner architecture'); const tag=process.env.GITHUB_REF_NAME; if(process.env.GITHUB_REF_TYPE==='tag' && tag!=='v'+require('./package.json').version) throw new Error('Tag and version differ')"
+      - run: npm ci --no-fund
+      - name: Dependency audit (high and critical block the build)
+        run: npm audit --audit-level=high
+      - run: npm run build
+      - run: npm test
+      - name: Create installers (unsigned)
+        run: npm run dist
+      - name: Test packaged program on its native OS
+        if: runner.os != 'Linux'
+        run: npm run smoke:packaged
+      - name: Test packaged Linux program with Chromium sandbox
+        if: runner.os == 'Linux'
+        run: |
+          sudo chown root:root dist/linux-unpacked/chrome-sandbox
+          sudo chmod 4755 dist/linux-unpacked/chrome-sandbox
+          xvfb-run -a npm run smoke:packaged
+      - run: npm run checksums
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: installers-${{ matrix.rid }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            dist/Easy-KSeF-*.exe
+            dist/Easy-KSeF-*.dmg
+            dist/Easy-KSeF-*.zip
+            dist/Easy-KSeF-*.AppImage
+            dist/Easy-KSeF-*.deb
+            dist/SHA256SUMS-*.txt
+            artifacts/smoke-*.json
+
+  draft-release:
+    name: Prepare draft prerelease
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: installers-*
+          path: release-assets
+          merge-multiple: true
+      - name: Verify artifacts and prepare a draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          cd release-assets
+          cat SHA256SUMS-*.txt > SHA256SUMS.txt
+          sha256sum --check SHA256SUMS.txt
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --draft --prerelease --title "Easy KSeF $RELEASE_TAG — wersja testowa" --notes-file ../RELEASE-NOTES.md Easy-KSeF-* SHA256SUMS.txt smoke-*.json

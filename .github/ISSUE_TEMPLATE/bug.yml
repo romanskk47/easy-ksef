@@ -1,0 +1,51 @@
+name: Problem z aplikacją
+description: Coś nie działa albo komunikat jest niezrozumiały.
+title: "[Problem]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Nie wklejaj tokenów, prawdziwych faktur, danych firm ani adresów paczek KSeF. Luki bezpieczeństwa zgłaszaj prywatnie przez zakładkę Security.
+  - type: input
+    id: version
+    attributes:
+      label: Wersja Easy KSeF
+      placeholder: np. 0.4.0
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: System
+      options:
+        - Windows
+        - macOS — Apple Silicon
+        - macOS — Intel
+        - Linux
+    validations:
+      required: true
+  - type: input
+    id: os_version
+    attributes:
+      label: Wersja systemu
+      placeholder: np. Windows 11, macOS 15, Ubuntu 24.04
+  - type: textarea
+    id: goal
+    attributes:
+      label: Co chcesz zrobić?
+      placeholder: np. przygotować wszystkie faktury zakupowe z miesiąca dla księgowej
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Co robisz i co się dzieje?
+      description: Podaj kolejno kroki, oczekiwany wynik i rzeczywisty komunikat. Dane i numery zastąp fikcyjnymi.
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Zrzut ekranu lub dodatkowe informacje
+      description: Opcjonalnie. Usuń tokeny, dane firm, kwoty, numery dokumentów oraz prywatne ścieżki.

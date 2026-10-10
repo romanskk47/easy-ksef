@@ -1,0 +1,129 @@
+{
+  "name": "easy-ksef",
+  "version": "0.4.0",
+  "private": true,
+  "description": "Pobieraj faktury z KSeF i zapisuj PDF oraz XML na swoim komputerze.",
+  "author": "Piotr Romański",
+  "main": "app/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.cjs",
+    "self-test": "electron . --self-test",
+    "pack:mac": "node scripts/dist.cjs --dir",
+    "build:ui": "vite build",
+    "vendor:fetch": "node scripts/fetch-vendors.cjs",
+    "build:converter": "node scripts/build-converter.cjs",
+    "build:bridge": "node scripts/build-bridge.cjs",
+    "build:notices": "node scripts/build-notices.cjs",
+    "build": "npm run vendor:fetch && npm run build:converter && npm run build:bridge && npm run build:ui && npm run build:notices",
+    "dist": "node scripts/dist.cjs",
+    "smoke:packaged": "node scripts/smoke-packaged.cjs",
+    "checksums": "node scripts/checksums.cjs"
+  },
+  "dependencies": {
+    "@radix-ui/react-checkbox": "1.3.12",
+    "@radix-ui/react-dialog": "1.2.0",
+    "@radix-ui/react-slider": "1.5.0",
+    "@radix-ui/react-slot": "1.4.0",
+    "@tanstack/react-table": "8.21.3",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "exceljs": "4.4.0",
+    "lucide-react": "1.53.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tailwind-merge": "3.7.0",
+    "yazl": "3.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.3.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3",
+    "tailwindcss": "4.3.3",
+    "typescript": "7.0.2",
+    "vite": "8.3.4"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "11.1.1",
+      "unzipper": "0.12.5"
+    }
+  },
+  "build": {
+    "appId": "pl.easyksef.pilot",
+    "productName": "Easy KSeF",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "app/**",
+      "package.json",
+      "LICENSE",
+      "!app/**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "bridge/publish",
+        "to": "bridge",
+        "filter": [
+          "**/*",
+          "!**/*.pdb"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.finance",
+      "identity": null,
+      "hardenedRuntime": false,
+      "icon": "build/easy-ksef.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "minimumSystemVersion": "13.0",
+      "notarize": false
+    },
+    "asar": true,
+    "win": {
+      "icon": "build/easy-ksef.ico",
+      "target": [
+        "nsis"
+      ],
+      "signAndEditExecutable": true
+    },
+    "artifactName": "Easy-KSeF-${version}-${os}-${arch}.${ext}",
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Easy KSeF"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office",
+      "icon": "app/brand/easy-ksef-256.png",
+      "executableName": "easy-ksef",
+      "maintainer": "Piotr Romański <noreply@github.com>"
+    },
+    "publish": null
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/romanskk47/easy-ksef",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/romanskk47/easy-ksef.git"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "packageManager": "npm@11.9.0"
+}

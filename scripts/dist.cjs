@@ -1,0 +1,11 @@
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const {root, run, target} = require('./common.cjs');
+const {rid, arch} = target();
+const built = JSON.parse(fs.readFileSync(path.join(root, 'bridge/publish/build-target.json'), 'utf8'));
+if (built.rid !== rid) throw new Error(`Bridge is ${built.rid}; installer target is ${rid}. Rebuild the bridge first.`);
+const platform = {darwin: '--mac', win32: '--win', linux: '--linux'}[process.platform];
+const args = [require.resolve('electron-builder/cli.js'), platform, `--${arch}`, '--publish', 'never'];
+if (process.argv.includes('--dir')) args.push('--dir');
+run(process.execPath, args, {env: {...process.env, CSC_IDENTITY_AUTO_DISCOVERY: 'false'}});

@@ -1,0 +1,24 @@
+name: Pomysł lub trudność w obsłudze
+description: Opisz zadanie, które chcesz wykonać łatwiej.
+title: "[Pomysł]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: Co próbujesz zrobić?
+      description: Opisz sytuację ze swojej pracy, bez danych firm i faktur.
+    validations:
+      required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: Co dziś przeszkadza?
+      description: W którym miejscu trzeba zgadywać, klikać za dużo lub używać innego programu?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Jaki wynik byłby pomocny?
+      description: Nie musisz projektować rozwiązania — wystarczy oczekiwany efekt.

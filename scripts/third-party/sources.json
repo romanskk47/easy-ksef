@@ -1,0 +1,22 @@
+[
+  {
+    "name": "identitymodel",
+    "source": "https://raw.githubusercontent.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/c8f7d87bcda35557a68f6cb9c55856a2ee733856/LICENSE.txt",
+    "sha256": "cba03f5387b05405e56b688376421acae396136af4b5116738dc6e5160f87ddd"
+  },
+  {
+    "name": "qrcoder",
+    "source": "https://raw.githubusercontent.com/Shane32/QRCoder/2dc55ee03cb9abf66ffed7d683cbcce0a141b124/LICENSE.txt",
+    "sha256": "22e4c25e35c416b15f655a62378d964597c15c6c27fe2ff123444491eec0649b"
+  },
+  {
+    "name": "aspnetcore",
+    "source": "https://raw.githubusercontent.com/dotnet/aspnetcore/ad30aa9595095b855c8787236996876f9f757191/LICENSE.txt",
+    "sha256": "6c9045c1cf391713484e2b7ee3e766ceae5f4696c111abaf53ed5e23e129ce24"
+  },
+  {
+    "name": "Roboto",
+    "source": "https://raw.githubusercontent.com/googlefonts/roboto-classic/5166f3d07889bf7d3732fb72e09623d7e52f862b/OFL.txt",
+    "sha256": "061402327a96aadb0bfb694a960ed289ecd38d383e396243831ab81feb109c41"
+  }
+]
