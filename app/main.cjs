@@ -6,6 +6,7 @@ const viewPrefs=require('./view-prefs.cjs');const exportsApi=require('./exports.
 const {environment:checkEnvironment,previousWarsawMonthStart}=require('./profile.cjs');
 const {CompanyProfiles,profileId,configurationTarget}=require('./company-profiles.cjs');
 const {requireSecureStorage}=require('./secure-storage.cjs');
+const {guardedPath}=require('./archive-paths.cjs');
 const {createPdfRenderer}=require('./pdf-renderer.cjs');
 const profileSnapshot=new (require('node:async_hooks').AsyncLocalStorage)();
 const {prepareDocumentsFolder,copyScopedArchive}=require('./documents-storage.cjs');
@@ -127,7 +128,7 @@ function register(){
  ipc('exportPdfZip',lock(async request=>exportsApi.exportZip(await archive(checkRole(request?.query?.role)),{...request,formats:'pdf'})));
  ipc('excel',lock(async month=>{if(!monthValid(month))throw new Error('INVALID_MONTH');return exportsApi.exportExcel(await archive(),{query:{role:'purchase',period:{kind:'month',month}}});}));
  ipc('guide',async()=>{await shell.openExternal('https://ksef.podatki.gov.pl/');return true;});
- ipc('sample',lock(async()=>{const xml=await fs.readFile(path.join(__dirname,'fixtures/invoice.xml'));const bytes=await pdf(xml,'5265877635-20260101-000000000000-00');const file=path.join(base(await profile()),'Przykład','Przykładowa faktura.pdf');await atomicWrite(file,bytes);return previewPdf(file);}));
+ ipc('sample',lock(async()=>{const xml=await fs.readFile(path.join(__dirname,'fixtures/invoice.xml'));const bytes=await pdf(xml,'5265877635-20260101-000000000000-00');const folder=base(await profile());const file=await guardedPath(folder,path.join(folder,'Przykład','Przykładowa faktura.pdf'),{create:true});await atomicWrite(file,bytes);return previewPdf(file);}));
 }
 if(!app.requestSingleInstanceLock())app.quit();
 else app.whenReady().then(async()=>{
