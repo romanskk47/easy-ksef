@@ -50,7 +50,8 @@
     "exceljs": {
       "uuid": "11.1.1",
       "unzipper": "0.12.5"
-    }
+    },
+    "@jridgewell/trace-mapping": "0.3.31"
   },
   "build": {
     "appId": "pl.easyksef.pilot",

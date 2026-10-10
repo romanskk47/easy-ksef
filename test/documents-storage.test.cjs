@@ -25,9 +25,9 @@ test('Conflicting existing document rejects before any new document is copied',a
 test('Nested destinations and symlinks inside either scoped archive are rejected',async t=>{
  const f=await fixture(t);await put(f.source,`Test/${nip}/Zakupy/a.xml`,'original');
  await assert.rejects(copyScopedArchive({...request(f),destinationBase:path.join(f.source,'nested')}),/NESTED_DOCUMENTS_FOLDER/);
- const outside=path.join(f.root,'outside');await fs.mkdir(outside);await fs.mkdir(f.destination);await fs.symlink(outside,path.join(f.destination,'Test'),'dir');
+ const outside=path.join(f.root,'outside');await fs.mkdir(outside);await fs.mkdir(f.destination);await fs.symlink(outside,path.join(f.destination,'Test'),process.platform==='win32'?'junction':'dir');
  await assert.rejects(copyScopedArchive(request(f)),/UNSAFE_DOCUMENTS_FOLDER/);assert.deepEqual(await fs.readdir(outside),[]);
- await fs.rm(f.destination,{recursive:true});await fs.symlink(outside,path.join(f.source,`Test/${nip}/Zakupy/link`),'dir');
+ await fs.rm(f.destination,{recursive:true});await fs.symlink(outside,path.join(f.source,`Test/${nip}/Zakupy/link`),process.platform==='win32'?'junction':'dir');
  await assert.rejects(copyScopedArchive(request(f)),/UNSAFE_DOCUMENTS_FOLDER/);
 });
 test('Destination picker preparation verifies a writable canonical directory and cleans probe files',async t=>{

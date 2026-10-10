@@ -1,8 +1,8 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os');
 const {CompanyProfiles,profileId,checkedRegistry,configurationTarget}=require('../app/company-profiles.cjs');
-const first={nip:'6808208874',name:'Firma A',environment:'test',bootstrapFrom:'2026-08-31T22:00:00Z',documentsPath:'/tmp/firma-a'};
-const second={nip:'5265877635',name:'Firma B',environment:'prod',bootstrapFrom:'2026-06-30T22:00:00Z',documentsPath:'/tmp/firma-b'};
+const first={nip:'6808208874',name:'Firma A',environment:'test',bootstrapFrom:'2026-08-31T22:00:00Z',documentsPath:path.join(os.tmpdir(),'firma-a')};
+const second={nip:'5265877635',name:'Firma B',environment:'prod',bootstrapFrom:'2026-06-30T22:00:00Z',documentsPath:path.join(os.tmpdir(),'firma-b')};
 async function fixture(t){const directory=await fs.mkdtemp(path.join(os.tmpdir(),'easy-ksef-companies-'));t.after(()=>fs.rm(directory,{recursive:true,force:true}));return {directory,store:new CompanyProfiles(directory)};}
 test('Legacy enrollment retains its settings without reading or enrolling other secret files',async t=>{
  const {directory,store}=await fixture(t);await fs.writeFile(path.join(directory,'profil.json'),JSON.stringify(first));await fs.writeFile(path.join(directory,'prod-5265877635.encrypted'),'unrelated-protected-data');
@@ -11,7 +11,7 @@ test('Legacy enrollment retains its settings without reading or enrolling other 
  const reopened=new CompanyProfiles(directory);assert.deepEqual(await reopened.active(),second);await reopened.select(profileId(first));assert.deepEqual(await reopened.active(),first);
 });
 test('Same NIP has independent test/production entries, paths and startup ranges',async t=>{
- const {store}=await fixture(t);const prod={...first,environment:'prod',name:'A produkcja',documentsPath:'/tmp/prod-a',bootstrapFrom:second.bootstrapFrom};await store.save(first);await store.save(prod);assert.equal((await store.load()).profiles.length,2);await store.select(profileId(first));assert.deepEqual(await store.active(),first);await store.select(profileId(prod));assert.deepEqual(await store.active(),prod);
+ const {store}=await fixture(t);const prod={...first,environment:'prod',name:'A produkcja',documentsPath:path.join(os.tmpdir(),'prod-a'),bootstrapFrom:second.bootstrapFrom};await store.save(first);await store.save(prod);assert.equal((await store.load()).profiles.length,2);await store.select(profileId(first));assert.deepEqual(await store.active(),first);await store.select(profileId(prod));assert.deepEqual(await store.active(),prod);
 });
 test('Updating an existing company preserves all other companies and reopens updated active entry',async t=>{
  const {store}=await fixture(t);await store.save(first);await store.save(second);const updated={...first,name:'Firma A nowa nazwa'};await store.save(updated);assert.deepEqual((await store.load()).profiles,[updated,second]);assert.deepEqual(await store.active(),updated);await assert.rejects(store.select('prod/0000000000'),/PROFILE_NOT_FOUND/);assert.deepEqual(await store.active(),updated);

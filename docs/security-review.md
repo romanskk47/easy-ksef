@@ -16,9 +16,16 @@ Stan przeglądu: **2026-10-11**. To przegląd kodu i testów przed publicznym pi
 
 ## Zależności npm
 
-Przy przeglądzie `npm audit` zgłaszał **8 pozycji o poziomie moderate**, bez pozycji high lub critical. Raport obejmuje również narzędzia budowania i propagację tej samej zależności przez jej użytkowników; liczba pozycji nie jest liczbą niezależnych ataków na gotową aplikację.
+Po końcowym sprawdzeniu pliku blokady i instalacji z pustą pamięcią podręczną:
 
-Pozostaje zgłoszenie dotyczące `sprintf-js` w wersjach do 1.1.3 w drzewie narzędzi. W chwili przeglądu nie było dostępnej poprawionej wersji według raportu npm. Nie oznaczamy tego wyniku jako „zero podatności”. Szczegóły wymagają ponownego sprawdzenia przy aktualizacji zależności lub wydaniu.
+| Zakres | Wynik `npm audit` |
+| --- | --- |
+| Zależności produkcyjne (`npm audit --omit=dev`) | **0 zgłoszeń** |
+| Całe drzewo, wraz z narzędziami budowania (`npm audit`) | **8 pozycji moderate**, 0 high, 0 critical |
+
+Osiem pozycji wynika ze zgłoszenia [`sprintf-js` — GHSA-hp3w-g68c-fv3c](https://github.com/advisories/GHSA-hp3w-g68c-fv3c) i jego propagacji przez narzędzia budowania. To osiem pozycji w raporcie zależności, nie osiem niezależnych ataków na gotową aplikację. Według raportu npm w chwili przeglądu nie było dostępnej poprawki dla tego drzewa. Nie oznaczamy całego projektu jako „zero podatności”. Wynik produkcyjnego audytu dotyczy znanych zgłoszeń npm, nie stanowi oceny całego programu ani zależności spoza npm.
+
+Sprawdzono dostępność 22 bezpośrednio przypiętych wersji oraz adresów 454 archiwów zapisanych w głównym pliku blokady. Jeden adres zwracał 404: `@jridgewell/trace-mapping@0.3.41`, zależność narzędzi programistycznych. Zastąpiono ją dostępną wersją `0.3.31`. Następnie `npm ci` dla aplikacji oraz osobna instalacja zależności generatora PDF przeszły z pustymi pamięciami podręcznymi. To potwierdza odtworzenie instalacji zależności w czasie sprawdzenia; nie zastępuje budowania i testów na każdym docelowym systemie.
 
 ## Wyniki i ograniczenia weryfikacji
 
