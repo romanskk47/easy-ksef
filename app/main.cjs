@@ -83,21 +83,50 @@ const configure=lock(async data=>{
  });
 async function downloadRole(request,p,selectedRole,dates,historyFrom){
    const a=await archive(selectedRole,p);
-   const input={op:'download',environment:p.environment,nip:p.nip,token:await token(p.nip,p.environment),role:selectedRole,kind:request.kind,month:request.month,dateFrom:dates?.from,dateTo:dates?.to,from:historyFrom||a.state.continuation||p.bootstrapFrom};
+   const from=historyFrom||a.state.continuation||p.bootstrapFrom;
    let expected=null;let saved=0,added=0;const before=new Set(Object.keys(a.state.documents));const received=new Set();
    const report=message=>send({...message,role:selectedRole});
-   const end=await runBridge(input,async message=>{
-     if(message.type==='manifest'){if(expected!==null||!Array.isArray(message.invoices))throw new Error('INVALID_MANIFEST');expected=new Map(message.invoices.map(m=>[m.id,m]));report({stage:'found',count:expected.size});}
-     else if(message.type==='invoice'){
-       if(!expected?.has(message.id)||received.has(message.id))throw new Error('UNEXPECTED_DOCUMENT');received.add(message.id);const meta=expected.get(message.id);
-       if(a.state.documents[message.id])await a.enrichMetadata(meta);
-       if(!await a.verified(message.id)){const xml=Buffer.from(message.xml,'base64');await a.saveXml(meta,xml);try{await a.savePdf(message.id,await pdf(xml,message.id,{environment:p.environment,qrCode:meta.qrCode,acDate:meta.acDate}));}catch{report({stage:'pdf-failed',count:saved,total:expected.size});}}
-       if(await a.verified(message.id)){saved++;if(!before.has(message.id))added++;}report({stage:'saving',count:saved,total:expected.size});
-     }else if(message.type==='progress')report({stage:message.stage||'preparing',count:message.count,total:message.total,retryAfterSeconds:message.retryAfterSeconds});
-   });
-   currentOperation.signal.throwIfAborted();
-   if(expected===null||received.size!==expected.size)throw new Error('INCOMPLETE_DOWNLOAD');
-   const result=await a.finish([...expected.keys()],{continuation:end.continuation,truncated:end.truncated,kind:request.kind,dateFrom:dates?.from,dateTo:dates?.to,historyFrom});return {...result,role:selectedRole,saved,added,months:[...new Set([...expected.values()].map(m=>m.date.slice(0,7)))].sort()};
+   await a.beginRefresh({kind:request.kind,dateFrom:dates?.from,dateTo:dates?.to,from});
+   try{
+     const input={op:'download',environment:p.environment,nip:p.nip,token:await token(p.nip,p.environment),role:selectedRole,kind:request.kind,month:request.month,dateFrom:dates?.from,dateTo:dates?.to,from};
+     // Phase 1 updates the list from authoritative XML. PDF rendering is local
+     // work and must not delay or determine the successful KSeF check record.
+     const end=await runBridge(input,async message=>{
+       if(message.type==='manifest'){if(expected!==null||!Array.isArray(message.invoices))throw new Error('INVALID_MANIFEST');expected=new Map(message.invoices.map(m=>[m.id,m]));report({stage:'found',count:expected.size});}
+       else if(message.type==='invoice'){
+         if(!expected?.has(message.id)||received.has(message.id))throw new Error('UNEXPECTED_DOCUMENT');const meta=expected.get(message.id);
+         if(a.state.documents[message.id])await a.enrichMetadata(meta);
+         if(!await a.verifiedXml(message.id))await a.saveXml(meta,Buffer.from(message.xml,'base64'));
+         received.add(message.id);report({stage:'receiving',count:received.size,total:expected.size});
+       }else if(message.type==='progress')report({stage:message.stage||'preparing',count:message.count,total:message.total,retryAfterSeconds:message.retryAfterSeconds});
+     });
+     currentOperation.signal.throwIfAborted();
+     if(end?.type!=='done'||expected===null||received.size!==expected.size)throw new Error('INCOMPLETE_DOWNLOAD');
+     const newInvoices=[...expected.keys()].filter(id=>!before.has(id)).length;
+     const refreshed=await a.completeRefresh([...expected.keys()],{continuation:end.continuation,truncated:end.truncated,newInvoices});
+     if(refreshed)report({stage:'ksef-refreshed',ksefRefreshed:true,refreshed:expected.size,newInvoices,ksefRefresh:a.state.ksefRefresh});
+     // Phase 2 prepares PDF copies. The prior successful refresh remains true
+     // when this phase fails, is cancelled, or the app is closed and reopened.
+     let prepared=0;
+     for(const [id,meta] of expected){
+       currentOperation.signal.throwIfAborted();
+       report({stage:'preparing-pdfs',ksefRefreshed:refreshed,count:prepared,total:expected.size});
+       if(!await a.verified(id)){
+         try{const xml=await fs.readFile(await a.guardFile(a.state.documents[id].xml));await a.savePdf(id,await pdf(xml,id,{environment:p.environment,qrCode:meta.qrCode,acDate:meta.acDate}));}
+         catch{report({stage:'pdf-failed',ksefRefreshed:refreshed,count:saved,total:expected.size});}
+       }
+       currentOperation.signal.throwIfAborted();
+       if(await a.verified(id)){saved++;if(!before.has(id))added++;}
+       prepared++;report({stage:'preparing-pdfs',ksefRefreshed:refreshed,count:prepared,total:expected.size});
+     }
+     currentOperation.signal.throwIfAborted();
+     const result=await a.finish([...expected.keys()],{continuation:end.continuation,truncated:end.truncated,kind:request.kind,dateFrom:dates?.from,dateTo:dates?.to,historyFrom});return {...result,role:selectedRole,saved,added,refreshed:refreshed?expected.size:0,newInvoices,ksefRefresh:a.state.ksefRefresh,months:[...new Set([...expected.values()].map(m=>m.date.slice(0,7)))].sort()};
+   }catch(error){
+     const status=currentOperation.signal.aborted||error.message==='CANCELLED'||error.name==='AbortError'?'cancelled':error.message==='INCOMPLETE_DOWNLOAD'?'incomplete':'failed';
+     // Preserve the original error if a full/unavailable disk also prevents
+     // saving the attempt. Its prior durable success is never overwritten.
+     await a.failRefresh(status).catch(()=>{});throw error;
+   }
  }
 const downloadRequest=lock(async request=>{
  const p=await profile();if(!p)throw new Error('NOT_CONFIGURED');
@@ -107,13 +136,13 @@ const downloadRequest=lock(async request=>{
   try{results.push(await downloadRole(request,p,selectedRole,dates,historyFrom));}
   catch(error){if(currentOperation.signal.aborted||roles.length===1)throw error;failures.push({role:selectedRole,message:safeErrors[error.message]||'Nie udało się pobrać faktur. Spróbuj ponownie.'});}
  }
- lastResult={role:request.role,results,failures,saved:results.reduce((n,r)=>n+r.saved,0),added:results.reduce((n,r)=>n+r.added,0),missing:results.reduce((n,r)=>n+(r.missing||0),0),truncated:results.some(r=>r.truncated),complete:failures.length===0&&results.every(r=>r.complete),months:[...new Set(results.flatMap(r=>r.months))].sort()};
+ lastResult={role:request.role,results,failures,saved:results.reduce((n,r)=>n+r.saved,0),added:results.reduce((n,r)=>n+r.added,0),refreshed:results.reduce((n,r)=>n+r.refreshed,0),newInvoices:results.reduce((n,r)=>n+r.newInvoices,0),missing:results.reduce((n,r)=>n+(r.missing||0),0),truncated:results.some(r=>r.truncated),complete:failures.length===0&&results.every(r=>r.complete),months:[...new Set(results.flatMap(r=>r.months))].sort()};
  return lastResult;
  });
 function register(){
  ipc('company',lookupCompany);
  ipc('cancel',()=>{if(!busy||!currentOperation||!['probe','download'].includes(currentOperation.bridgeOperation))return false;currentOperation.abort();return true;});
- ipc('status',async()=>{const registry=await companyProfiles().load();const p=registry.profiles.find(item=>profileId(item)===registry.activeId)||null;const a=p?await archive('purchase',p):null;const roleStatuses={};if(p)for(const selectedRole of ['purchase','sales']){const scoped=selectedRole==='purchase'?a:await archive(selectedRole,p);roleStatuses[selectedRole]={folder:scoped.root,archiveTotal:Object.keys(scoped.state.documents).length,continuation:scoped.state.continuation,lastRun:scoped.state.lastRun,coverage:scoped.state.coverage||[],history:scoped.state.history||null};}return {profile:p,profiles:registry.profiles,activeId:registry.activeId,defaultDocumentsBase:defaultBase(),environment:p?.environment||'prod',documentsBase:base(p),folder:a?.root||base(p),busy,lastResult,lastRun:a?.state.lastRun,roleStatuses,simulatedConnection:process.argv.includes('--ui-check')&&process.argv.includes('--simulate-connection')};});
+ ipc('status',async()=>{const registry=await companyProfiles().load();const p=registry.profiles.find(item=>profileId(item)===registry.activeId)||null;const a=p?await archive('purchase',p):null;const roleStatuses={};if(p)for(const selectedRole of ['purchase','sales']){const scoped=selectedRole==='purchase'?a:await archive(selectedRole,p);roleStatuses[selectedRole]={folder:scoped.root,archiveTotal:Object.keys(scoped.state.documents).length,continuation:scoped.state.continuation,lastRun:scoped.state.lastRun,ksefRefresh:scoped.state.ksefRefresh||null,coverage:scoped.state.coverage||[],history:scoped.state.history||null};}return {profile:p,profiles:registry.profiles,activeId:registry.activeId,defaultDocumentsBase:defaultBase(),environment:p?.environment||'prod',documentsBase:base(p),folder:a?.root||base(p),busy,lastResult,lastRun:a?.state.lastRun,roleStatuses,simulatedConnection:process.argv.includes('--ui-check')&&process.argv.includes('--simulate-connection')};});
  ipc('chooseDocumentsFolder',lock(chooseDocumentsFolder));ipc('changeDocumentsFolder',changeDocumentsFolder);
  ipc('configure',configure);ipc('selectCompany',lock(async request=>{const registry=await companyProfiles().load();if(request?.expectedActiveId!==registry.activeId)throw new Error('PROFILE_CHANGED');await companyProfiles().select(request?.id);lastResult=null;return true;}));ipc('download',downloadRequest);
  ipc('list',async month=>{if(!monthValid(month))throw new Error('INVALID_MONTH');return (await (await archive()).checkedList(month)).map(({id,number,date,seller,gross,currency,status})=>({id,number,date,seller,gross,currency,status}));});

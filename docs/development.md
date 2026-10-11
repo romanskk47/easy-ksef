@@ -65,6 +65,14 @@ Test pakietu działa na tymczasowym profilu, używa przykładowego XML-a i spraw
 
 `node_modules`, pobrane źródła `vendor`, gotowe binaria, lokalne archiwa i logi nie należą do repozytorium. Nie dodawaj sekretów do zmiennych CI ani plików, jeśli test może korzystać z danych syntetycznych.
 
+## Dane KSeF i pliki lokalne
+
+Od wersji 0.4.1 odczyt danych i przygotowanie PDF-ów są osobnymi etapami. Archiwum zapisuje w `ksefRefresh` ostatni udany odczyt i ostatnią próbę, osobno dla każdego rodzaju faktur. Potwierdzenie wymaga całego zakresu odpowiedzi KSeF oraz zweryfikowanych XML-i; brak PDF-a nie odbiera tego potwierdzenia.
+
+Nie wyznaczaj czasu odświeżenia z daty eksportu, otwarcia folderu ani zakończenia generatora PDF. Zachowuj zakres przy każdym czasie: sprawdzenie historycznego miesiąca nie potwierdza odświeżenia nowych faktur. Starsze archiwa mają odczyt zgodności z wcześniejszych zapisów; nowe odświeżenie utrwala już niezależny status.
+
+Testy `ksef-refresh` obejmują trwałość tego rozdzielenia; `workflow` sprawdza odrębne etapy i komunikaty, także po przerwaniu. Do kontroli interfejsu używaj fikcyjnych firm i faktur. Żaden taki scenariusz nie potwierdza odczytu z produkcyjnego KSeF.
+
 ## Publikowanie wydania
 
 Instalatory dla wszystkich czterech celów muszą powstać z tego samego commitu. Sprawdź wyniki natywnych testów pakietu, sumy SHA-256, licencje, informacje o znanych ograniczeniach i rzeczywiste załączniki wydania. Nie zastępuj brakującego instalatora samym archiwum źródeł. Wydanie pilotażowe powinno pozostać oznaczone jako prerelease.

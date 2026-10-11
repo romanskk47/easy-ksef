@@ -362,3 +362,59 @@ html[dir=rtl] .sidebar-toggle svg{scale:-1 1}
 .invoice-page .action-result.compact>div{flex:1;min-width:0;flex-basis:auto}
 .invoice-page .action-result.compact strong{line-height:1.5}
 .invoice-page .action-result.compact>button{flex-shrink:0}
+
+/* KSeF data freshness is independent of the local PDF and export tasks. */
+.invoice-page .ksef-refresh{padding:16px 18px;margin-block:4px 18px;flex-shrink:0}
+.ksef-refresh-heading{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.ksef-refresh-heading h2{font-size:16px;margin:0;line-height:1.4}
+.ksef-refresh-heading p{font-size:12px;color:var(--muted-text);margin:3px 0 0}
+.ksef-refresh-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ksef-refresh-actions button{font-size:13px;min-height:36px}
+.ksef-refresh-actions svg{width:16px;height:16px;stroke-width:1.7}
+.ksef-refresh-roles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-block:16px 12px}
+.ksef-refresh-role{display:grid;grid-template-columns:108px minmax(0,1fr);gap:8px;align-items:start;min-width:0}
+.ksef-refresh-role+.ksef-refresh-role{border-inline-start:1px solid var(--border);padding-inline-start:20px}
+.ksef-refresh-role dt{display:flex;align-items:center;gap:7px;font-size:13px;line-height:22px}
+.ksef-refresh-role dt svg{width:16px;height:16px;color:var(--muted-text);stroke-width:1.5}
+.ksef-refresh-role dd{font-size:13px;line-height:22px;margin:0;min-width:0;overflow-wrap:anywhere}
+.ksef-refresh-role dd strong{font-weight:600;font-variant-numeric:tabular-nums}
+.ksef-refresh-scope{display:block;font-size:12px;line-height:18px;color:var(--muted-text)}
+.ksef-refresh-attempt{display:block;font-size:12px;line-height:18px;color:var(--warning-text);margin-block-start:4px}
+.ksef-refresh-help{font-size:12px;color:var(--muted-text);line-height:1.5;margin:0}
+.ksef-refresh-progress:empty{display:none}
+.ksef-refresh-progress{margin-block-start:12px;padding-block-start:8px;border-block-start:1px solid var(--border);font-size:13px}
+.ksef-refresh-progress .download-progress-hint{font-size:12px;color:var(--muted-text)}
+.invoice-list-heading{display:flex;align-items:center;gap:20px;margin-block-end:8px;flex-shrink:0}
+.invoice-list-heading h2{font-size:16px;margin:0;line-height:1.5}
+.invoice-page .invoice-list-heading .role-tabs{margin:0;flex:1}
+.invoice-page .period-controls>label{display:block;font-size:12px;color:var(--muted-text);font-weight:500;line-height:18px;margin-block-end:5px}
+.invoice-page .search-line{align-self:end}
+.invoice-page .list-filter-hint{grid-column:1/-1;margin:0;font-size:12px;color:var(--muted-text);line-height:1.5}
+.invoice-page .export-target{font-size:12px;margin-inline-end:8px}
+.invoice-page .action-result.warning{background:var(--warning-bg);color:var(--warning-text);border-color:#e5d9be}
+@media(max-width:1150px){.ksef-refresh-role{grid-template-columns:minmax(0,1fr);gap:2px}.ksef-refresh-role dd{padding-inline-start:23px}.invoice-page .export-target{display:none}}
+@media(max-width:780px){.ksef-refresh-heading{align-items:flex-start;flex-wrap:wrap;gap:12px}.ksef-refresh-actions{flex-wrap:wrap}.invoice-page .ksef-refresh{padding:14px;margin-block-end:14px}.ksef-refresh-role+.ksef-refresh-role{padding-inline-start:14px}.ksef-refresh-roles{gap:14px;margin-block:14px 10px}}
+@media(max-width:480px){.ksef-refresh-actions{width:100%}.ksef-refresh-actions button{flex:1;padding-inline:10px;font-size:12px;white-space:normal;height:auto;line-height:1.4}.ksef-refresh-roles{grid-template-columns:1fr;gap:10px}.ksef-refresh-role{grid-template-columns:minmax(0,1fr);gap:2px}.ksef-refresh-role dd{padding-inline-start:23px}.ksef-refresh-role+.ksef-refresh-role{border-inline-start:0;border-block-start:1px solid var(--border);padding:10px 0 0}.invoice-list-heading{gap:8px;flex-wrap:wrap}.invoice-page .invoice-list-heading .role-tabs{flex-basis:100%}.invoice-page .ksef-refresh{padding:12px}}
+/* Container width also handles enlarged text and a narrow desktop content area. */
+.invoice-page{container-type:inline-size}
+@container(max-width:680px){
+ .ksef-refresh-heading{align-items:flex-start;flex-wrap:wrap;gap:12px}
+ .ksef-refresh-role{grid-template-columns:minmax(0,1fr);gap:2px}
+ .ksef-refresh-role dd{padding-inline-start:23px}
+ .invoice-page .list-controls{grid-template-columns:minmax(0,1fr)}
+ .invoice-page .search-line{flex-wrap:wrap}
+ .invoice-page .search-box{flex-basis:100%}
+ .invoice-page .result-toolbar{flex-wrap:wrap}
+ .invoice-page .export-target{display:none}
+}
+@container(max-width:450px){
+ .ksef-refresh-roles{grid-template-columns:minmax(0,1fr);gap:10px}
+ .ksef-refresh-role+.ksef-refresh-role{border-inline-start:0;border-block-start:1px solid var(--border);padding:10px 0 0}
+ .ksef-refresh-actions{flex-wrap:wrap;width:100%}
+ .ksef-refresh-actions button{white-space:normal;height:auto;line-height:1.4;min-width:0}
+ .invoice-list-heading{gap:8px;flex-wrap:wrap}
+ .invoice-page .invoice-list-heading .role-tabs{flex-basis:100%}
+}
+.invoice-page .list-controls:has(.date-range) .period-controls,.invoice-page .list-controls:has(.date-range) .search-line{grid-column:1/-1}
+.invoice-page .date-range{flex-wrap:wrap}
+.invoice-page .date-range label{flex:0 1 190px;min-width:150px}

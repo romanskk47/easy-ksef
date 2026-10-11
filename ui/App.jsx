@@ -33,6 +33,7 @@ export default function App(){
   const offProgress=window.easyKsef?.onProgress?.(data=>{
    if(!['download','connect'].includes(operationRef.current?.kind))return;
    if(data.stage!=='failed')setProgress({...data,receivedAt:Date.now()});
+   if(data.stage==='ksef-refreshed'||data.stage==='connecting'&&operationRef.current?.kind==='download')refresh().catch(e=>notify(e.message,true));
   });
   return()=>{typeof offProfile==='function'&&offProfile();typeof offProgress==='function'&&offProgress();};
  },[initialize,refresh,notify]);

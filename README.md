@@ -1,44 +1,46 @@
 # Easy KSeF
 
-**Pobierz faktury z KSeF do jednego folderu — jako PDF i XML.**
+**Sprawdź faktury z KSeF i przygotuj PDF-y oraz XML-e dla księgowości.**
 
-Dla osób, które potrzebują faktur do pracy w biurze lub przekazania księgowości, a nie kolejnego systemu księgowego. Wybierasz firmę i okres, a Easy KSeF zapisuje dokumenty na komputerze. Bez ręcznego pobierania każdej faktury osobno.
+Dla osób, które potrzebują faktur do pracy w biurze lub przekazania księgowości. Easy KSeF odświeża listę faktur wybranej firmy, pokazuje czas odczytu z KSeF i zapisuje dokumenty na komputerze. Bez ręcznego pobierania każdej faktury osobno.
 
-**[Pobierz Easy KSeF 0.4.0 →](https://github.com/romanskk47/easy-ksef/releases/tag/v0.4.0)** · [Pierwsze uruchomienie](docs/pierwsze-kroki.md) · [Pomoc](docs/pomoc.md)
+**[Pobierz Easy KSeF 0.4.1 →](https://github.com/romanskk47/easy-ksef/releases/tag/v0.4.1)** · [Pierwsze uruchomienie](docs/pierwsze-kroki.md) · [Pomoc](docs/pomoc.md)
 
 To bezpłatna, otwarta **wersja pilotażowa**. Instalatory nie mają jeszcze podpisu wydawcy; system może wyświetlić ostrzeżenie. [Co to oznacza przy instalacji](docs/instalacja.md).
 
-![Lista zapisanych faktur w Easy KSeF — dane przykładowe](docs/screenshots/faktury.png)
+![Lista zapisanych faktur w Easy KSeF — dane przykładowe](docs/screenshots/faktury.jpg)
 
 ## Wybierz swój komputer
 
 | System | Pobierz | Wymagania |
 | --- | --- | --- |
-| Windows | [Instalator .exe](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-win-x64.exe) | Windows 10 lub 11, 64-bit |
-| Mac z procesorem Apple M1/M2/M3/M4 lub nowszym | [Instalator .dmg](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-mac-arm64.dmg) | macOS 13 lub nowszy |
-| Mac z procesorem Intel | [Instalator .dmg](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-mac-x64.dmg) | macOS 13 lub nowszy |
-| Linux | [AppImage](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-linux-x86_64.AppImage) | x86-64, środowisko graficzne i systemowy sejf haseł |
-| Ubuntu / Debian | [Pakiet .deb](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-linux-amd64.deb) | x86-64, środowisko graficzne i systemowy sejf haseł |
+| Windows | [Instalator .exe](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.1/Easy-KSeF-0.4.1-win-x64.exe) | Windows 10 lub 11, 64-bit |
+| Mac z procesorem Apple M1/M2/M3/M4 lub nowszym | [Instalator .dmg](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.1/Easy-KSeF-0.4.1-mac-arm64.dmg) | macOS 13 lub nowszy |
+| Mac z procesorem Intel | [Instalator .dmg](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.1/Easy-KSeF-0.4.1-mac-x64.dmg) | macOS 13 lub nowszy |
+| Linux | [AppImage](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.1/Easy-KSeF-0.4.1-linux-x86_64.AppImage) | x86-64, środowisko graficzne i systemowy sejf haseł |
+| Ubuntu / Debian | [Pakiet .deb](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.1/Easy-KSeF-0.4.1-linux-amd64.deb) | x86-64, środowisko graficzne i systemowy sejf haseł |
 
-Nie potrzebujesz Pythona, Node.js ani osobnej instalacji .NET. Na Macu sprawdzisz procesor w menu Apple → **Ten Mac**. Wersje ZIP dla Maca i sumy SHA-256 są na [stronie wydania](https://github.com/romanskk47/easy-ksef/releases/tag/v0.4.0).
+Nie potrzebujesz Pythona, Node.js ani osobnej instalacji .NET. Na Macu sprawdzisz procesor w menu Apple → **Ten Mac**. Wersje ZIP dla Maca i sumy SHA-256 są na [stronie wydania](https://github.com/romanskk47/easy-ksef/releases/tag/v0.4.1).
 
 ## Zacznij od trzech kroków
 
 1. **Dodaj firmę.** Wpisz NIP, wybierz folder i wklej token z tego samego środowiska KSeF. Wystarczy uprawnienie **„Przeglądanie faktur”**. Instrukcja tworzenia tokena jest w aplikacji i [tutaj](docs/pierwsze-kroki.md).
-2. **Pobierz faktury.** Przy pierwszym pobraniu wybierz „Cała dostępna historia” albo konkretny okres. Program zapisze XML-y i przygotuje PDF-y. Liczba wierszy na stronie nie ogranicza pobierania.
-3. **Wracaj po nowe.** Kliknij „Sprawdź nowe faktury” w zakładce zakupów lub sprzedaży. Widzisz czas ostatniego zakończonego pobrania. **Program nie sprawdza KSeF automatycznie w tle.**
+2. **Uzupełnij historię.** Kliknij „Wybierz okres…”, wybierz „Cała dostępna historia” albo konkretny okres i rozpocznij odświeżanie. Program uzupełni listę, zapisze XML-y z KSeF, a potem przygotuje PDF-y.
+3. **Wracaj po nowe.** „Odśwież z KSeF” sprawdza nowe faktury zakupowe i sprzedażowe jednym przyciskiem. Panel „Dane z KSeF” pokazuje osobno dla obu rodzajów czas i zakres ostatniego udanego odświeżenia. **Program nie sprawdza KSeF automatycznie w tle.**
+
+**Czas w panelu „Dane z KSeF” dotyczy odczytu do aplikacji.** Przygotowanie PDF-ów jest osobnym etapem. Jeśli pojedynczy PDF się nie utworzy, potwierdzony odczyt danych pozostaje zapisany, a plik wymagający uwagi jest oznaczony na liście. Nieudana lub przerwana próba odczytu nie zastępuje poprzedniego udanego odświeżenia.
 
 ## Co oznaczają przyciski?
 
 | Chcę… | Co zrobić |
 | --- | --- |
-| Ściągnąć nowe dokumenty z KSeF | **Sprawdź nowe faktury** — dla otwartej zakładki zakupów lub sprzedaży |
-| Uzupełnić starsze miesiące albo pobrać wszystko | **Pobierz starsze…** → „Cała dostępna historia” lub „Wybrany okres” |
-| Znaleźć już pobraną fakturę | Użyj wyszukiwania, okresu i filtrów nad listą |
+| Sprawdzić nowe faktury w KSeF | **Odśwież z KSeF** — zakupy i sprzedaż wybranej firmy |
+| Uzupełnić starsze miesiące albo całą historię | **Wybierz okres…** → „Cała dostępna historia” lub „Wybrany okres” |
+| Znaleźć fakturę już w aplikacji | Użyj wyszukiwania, okresu i filtrów w sekcji **Lista faktur** |
 | Zobaczyć pliki na dysku | **Otwórz folder** |
-| Przekazać dokumenty księgowości | **Przygotuj do wysłania…** → ZIP z PDF-ami, PDF-ami i XML-ami albo zestawienie Excel |
+| Przekazać dokumenty księgowości | **Eksportuj…** → ZIP z PDF-ami, PDF-ami i XML-ami albo zestawienie Excel |
 
-**Lista pokazuje dokumenty zapisane na tym komputerze.** Zmiana miesiąca lub filtrów przeszukuje ten lokalny zbiór. Eksport również korzysta z zapisanych plików — nie odświeża KSeF i niczego sam nie wysyła. Bez zaznaczenia obejmuje całą przefiltrowaną listę, ze wszystkich stron; z zaznaczeniem — wybrane faktury.
+**Lista pokazuje dane faktur już zapisane w aplikacji.** Zmiana miesiąca lub filtrów przeszukuje ten lokalny zbiór. Eksport również korzysta z zapisanych danych i plików — nie odświeża KSeF i niczego sam nie wysyła. Bez zaznaczenia obejmuje całą przefiltrowaną listę, ze wszystkich stron; z zaznaczeniem — wybrane faktury.
 
 Możesz dodać kilka firm. Każda ma osobny token i folder z NIP-em. Kwoty różnych walut są sumowane osobno. [Więcej o pracy z listą](docs/pierwsze-kroki.md#codzienna-praca).
 

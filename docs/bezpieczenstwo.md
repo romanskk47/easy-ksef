@@ -32,9 +32,9 @@ Foldery iCloud, OneDrive, Dropbox, Dysku Google i udziały sieciowe mogą przesy
 
 ## Instalatory i aktualizacje
 
-Publiczny pilotaż 0.4.0 jest niepodpisany i nie ma automatycznego aktualizatora. Pobieraj pliki wyłącznie z [wydań właściwego repozytorium](https://github.com/romanskk47/easy-ksef/releases). Sumy SHA-256 pomagają porównać pliki, ale nie są podpisem wydawcy.
+Publiczny pilotaż 0.4.1 jest niepodpisany i nie ma automatycznego aktualizatora. Pobieraj pliki wyłącznie z [wydań właściwego repozytorium](https://github.com/romanskk47/easy-ksef/releases). Sumy SHA-256 pomagają porównać pliki, ale nie są podpisem wydawcy.
 
-Otwarty kod pozwala sprawdzić sposób działania i zbudować własną wersję. Sam w sobie nie gwarantuje bezpieczeństwa gotowego programu. [Zakres przeglądu przed wydaniem](security-review.md) opisuje wykonane kontrole i ich ograniczenia.
+Otwarty kod pozwala sprawdzić sposób działania i zbudować własną wersję. Sam w sobie nie gwarantuje bezpieczeństwa gotowego programu. [Przegląd bezpieczeństwa wersji 0.4.0](security-review.md) opisuje wykonane wtedy kontrole i ich ograniczenia. Wyniki tej wcześniejszej wersji nie zastępują testów poprawki 0.4.1.
 
 ## Zgłoszenia i pomoc
 

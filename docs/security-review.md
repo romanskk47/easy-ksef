@@ -1,5 +1,7 @@
 # Przegląd bezpieczeństwa wydania 0.4.0
 
+Ten dokument zachowuje wyniki przeglądu **0.4.0**. Poprawka 0.4.1 zmienia interfejs i rozdziela potwierdzenie odczytu KSeF od przygotowania PDF-ów. Poniższe liczby testów i wyniki audytu zależności nie są nowym pomiarem dla 0.4.1; jej wyniki należy odczytać z odpowiedniego [przebiegu CI](https://github.com/romanskk47/easy-ksef/actions).
+
 Stan przeglądu: **2026-10-11**. To przegląd kodu i testów przed publicznym pilotażem, nie niezależny audyt, pentest ani certyfikacja. Zakres obejmuje aplikację desktopową, lokalne archiwum, konfigurację dostępu i proces budowania.
 
 ## Co sprawdzamy

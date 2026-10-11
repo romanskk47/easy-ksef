@@ -2,19 +2,27 @@
 
 ## Nie widzę sierpnia, lipca albo innych faktur
 
-Lista pokazuje lokalne dokumenty. Wyczyść wyszukiwanie i filtry, a w okresie wybierz **„Wszystkie zapisane”**. Jeśli nadal brakuje faktur, użyj **„Pobierz starsze…”** i wybierz okres lub całą dostępną historię. Sam wybór miesiąca nie pobiera niczego z KSeF.
+„Lista faktur” pokazuje dane już zapisane w aplikacji. Wyczyść wyszukiwanie i filtry, a w okresie wybierz **„Wszystkie zapisane”**. Jeśli nadal brakuje faktur, użyj **„Wybierz okres…”** i sprawdź okres lub całą dostępną historię. Sam wybór miesiąca na liście nie odświeża KSeF.
 
 Sprawdź również firmę, środowisko i zakładkę „Zakupowe”/„Sprzedażowe”. Testowy KSeF nie zawiera rzeczywistych dokumentów produkcyjnych.
 
 ## Czy nowe faktury pojawiają się same?
 
-Nie. Kliknij **„Sprawdź nowe faktury”**. Czynność dotyczy otwartej zakładki zakupów albo sprzedaży. Czas ostatniego zakończonego pobrania jest widoczny przy liście. Może to być wcześniejszy termin niż ostatnia nieudana próba.
+Nie. Kliknij **„Odśwież z KSeF”**. Czynność sprawdza nowe faktury zakupowe i sprzedażowe wybranej firmy jednym przyciskiem, niezależnie od otwartej zakładki.
 
-## Widzę 50 wierszy. Jak pobrać lub wyeksportować wszystkie?
+## Co oznacza czas w panelu „Dane z KSeF”?
 
-Liczba wierszy służy przeglądaniu. Pobranie historii lub okresu nie jest nią ograniczone.
+To czas ostatniego potwierdzonego odczytu faktur z KSeF do aplikacji, osobno dla zakupów i sprzedaży. Obok jest zakres odczytu: nowe faktury, historia albo wybrany okres. Sprawdzenie starszego miesiąca nie oznacza odświeżenia nowych dokumentów.
 
-Przy eksporcie, jeśli niczego nie zaznaczysz, **„Przygotuj do wysłania…”** obejmuje całą bieżącą listę po filtrowaniu, ze wszystkich stron. Jeżeli wybierasz checkboxy, po zaznaczeniu strony użyj **„Zaznacz wszystkie…”** i sprawdź licznik w oknie eksportu.
+Jeśli późniejsza próba nie powiedzie się, będzie niepełna lub zostanie przerwana, zobaczysz jej wynik oddzielnie. Nie zastępuje poprzedniego udanego odczytu. Status „Jeszcze nie odświeżono” oznacza brak takiego potwierdzenia.
+
+Przygotowanie PDF-ów odbywa się po odczycie. Brak PDF-a może wymagać naprawy pliku, ale nie cofa potwierdzonego odświeżenia danych.
+
+## Widzę 50 wierszy. Jak odświeżyć lub wyeksportować wszystkie?
+
+Liczba wierszy służy przeglądaniu. Odświeżenie historii lub wybranego okresu nie jest nią ograniczone.
+
+Przy eksporcie, jeśli niczego nie zaznaczysz, **„Eksportuj…”** obejmuje całą bieżącą listę po filtrowaniu, ze wszystkich stron. Jeżeli zaznaczasz faktury, po zaznaczeniu strony użyj **„Zaznacz wszystkie…”** i sprawdź licznik w oknie eksportu. Eksport korzysta z danych i plików na komputerze; nie odświeża KSeF ani nie wysyła wiadomości.
 
 ## Token nie działa
 
@@ -27,15 +35,15 @@ Sprawdź kolejno:
 
 Nie wklejaj tokena do zgłoszenia. Gdy KSeF odrzuca poprawny dostęp, sprawdź uprawnienia w Aplikacji Podatnika i spróbuj ponownie. Gdy błąd dotyczy systemowego sejfu, rozwiąż ten problem przed ponownym zapisem tokena.
 
-## Pobieranie trwa, stoi albo zostało przerwane
+## Odświeżanie trwa, stoi albo zostało przerwane
 
-Przy ograniczeniu liczby zapytań program pokaże oczekiwanie i ponowi próbę sam. Nie klikaj wielokrotnie pobierania. Możesz przerwać czynność; zakończenie zapisu bieżącego dokumentu może chwilę potrwać.
+Przy ograniczeniu liczby zapytań program pokaże oczekiwanie i ponowi próbę sam. Nie klikaj wielokrotnie odświeżania. Możesz użyć przycisku **„Przerwij”**; zakończenie bieżącego zapisu może chwilę potrwać.
 
-Po błędzie lub przerwaniu użyj **„Ponów pobieranie”**. Zapisane pliki pozostają na komputerze. Jeżeli zabrakło miejsca, folder zniknął albo utraciłeś prawo zapisu, najpierw usuń tę przyczynę. Nie odłączaj dysku podczas pobierania.
+Po błędzie lub przerwaniu użyj **„Ponów odświeżanie”**. Faktury już dodane i gotowe pliki pozostają na komputerze. Jeśli przerwałeś przygotowywanie PDF-ów po udanym odczycie, czas odświeżenia danych pozostaje potwierdzony. Jeżeli zabrakło miejsca, folder zniknął albo utraciłeś prawo zapisu, najpierw usuń tę przyczynę. Nie odłączaj dysku podczas pracy programu.
 
 ## PDF się nie otwiera albo plik wymaga naprawy
 
-Pobierz ponownie ten sam okres. Program powinien uzupełnić brakujący lub uszkodzony plik. Jeżeli problem powtarza się dla jednego dokumentu, zgłoś go, opisując komunikat i wersję aplikacji. Nie załączaj prawdziwego XML-a lub PDF-a; do odtworzenia potrzebny będzie bezpieczny przykład.
+Wybierz **„Filtry” → „Stan plików” → „Wymagają naprawy”**, aby znaleźć faktury z brakującym lub uszkodzonym plikiem. Następnie przez **„Wybierz okres…”** odśwież ich okres ponownie. Program spróbuje uzupełnić pliki. Jeżeli problem powtarza się dla jednego dokumentu, zgłoś go, opisując komunikat i wersję aplikacji. Nie załączaj prawdziwego XML-a lub PDF-a; do odtworzenia potrzebny będzie bezpieczny przykład.
 
 ## Nie udało się uzupełnić nazwy firmy
 

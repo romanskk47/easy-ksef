@@ -1,12 +1,12 @@
 # Instalacja i aktualizacje
 
-Pobieraj program z [wydań tego repozytorium](https://github.com/romanskk47/easy-ksef/releases/tag/v0.4.0). Pliki „Source code” to kod dla programistów — wybierz instalator dla swojego komputera.
+Pobieraj program z [wydań tego repozytorium](https://github.com/romanskk47/easy-ksef/releases/tag/v0.4.1). Pliki „Source code” to kod dla programistów — wybierz instalator dla swojego komputera.
 
-Wydanie 0.4.0 jest pilotażowe i nie ma podpisu wydawcy ani notaryzacji Apple. Ostrzeżenie o nieznanym wydawcy jest więc możliwe. Nie wyłączaj antywirusa, Gatekeepera ani innych zabezpieczeń całego systemu. Jeśli komputerem zarządza firma, przekaż instalator administratorowi.
+Wydanie 0.4.1 jest pilotażowe i nie ma podpisu wydawcy ani notaryzacji Apple. Ostrzeżenie o nieznanym wydawcy jest więc możliwe. Nie wyłączaj antywirusa, Gatekeepera ani innych zabezpieczeń całego systemu. Jeśli komputerem zarządza firma, przekaż instalator administratorowi.
 
 ## Windows
 
-1. Pobierz `Easy-KSeF-0.4.0-win-x64.exe`.
+1. Pobierz `Easy-KSeF-0.4.1-win-x64.exe`.
 2. Otwórz plik i przejdź przez instalator. Możesz wybrać folder instalacji; program instaluje się dla bieżącego użytkownika.
 3. Uruchom **Easy KSeF** z menu Start lub skrótu na pulpicie.
 
@@ -34,6 +34,8 @@ Wydajemy pakiety x86-64. Potrzebujesz środowiska graficznego oraz działająceg
 ## Aktualizacja
 
 W programie nie ma automatycznego aktualizatora. Pobierz nowsze wydanie, zamknij Easy KSeF i zainstaluj je w miejsce wcześniejszej wersji. Nie usuwaj przy tym folderu faktur. Przed pilotażową aktualizacją zachowaj jego kopię zapasową.
+
+W wersji 0.4.1 czas odczytu danych z KSeF jest oddzielony od przygotowania PDF-ów. W starszym archiwum panel może początkowo korzystać z czasu wcześniejszego zakończonego pobrania. Po następnym udanym odświeżeniu pokaże nowy czas odczytu, niezależny od wyniku przygotowania PDF-ów. „Odśwież z KSeF” sprawdza teraz zakupy i sprzedaż jednym przyciskiem.
 
 Tokeny są związane z kontem użytkownika systemu. Przeniesienie samych plików programu na inny komputer nie przenosi bezpiecznie dostępu do KSeF — dodaj tam firmę i odpowiedni token.
 

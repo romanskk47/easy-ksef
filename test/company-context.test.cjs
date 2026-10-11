@@ -12,7 +12,7 @@ async function harness(t,{two=true}={}){
  const profile=nip=>({nip,name:nip===NIP_A?'Fikcyjna firma A':'Fikcyjna firma B',environment:'test',bootstrapFrom:'2026-09-01T00:00:00.000Z',documentsPath:documents});
  const profiles=new CompanyProfiles(userData),a=profile(NIP_A),b=profile(NIP_B);await profiles.save(a);if(two)await profiles.save(b);await profiles.select(profileId(a));
  const tokenFile=nip=>path.join(userData,`test-${nip}.encrypted`);const oldToken=Buffer.from('MOCK_ENCRYPTED:synthetic-original-access');await fs.writeFile(tokenFile(NIP_A),oldToken);
- const controls={probe:async()=>({type:'connected'}),exportExcel:async()=>({count:1,filename:'synthetic.xlsx'}),download:async(input,listener)=>{await listener({type:'manifest',invoices:[]});return {type:'done',continuation:'2026-10-10T12:00:00Z',truncated:false};},progress:[],failRegistrySave:false,calls:{bridge:0,exports:0,pdf:0,encrypt:0}};
+ const controls={renderPdf:async()=>Buffer.from('%PDF-1.7\nsynthetic'),probe:async()=>({type:'connected'}),exportExcel:async()=>({count:1,filename:'synthetic.xlsx'}),download:async(input,listener)=>{await listener({type:'manifest',invoices:[]});return {type:'done',continuation:'2026-10-10T12:00:00Z',truncated:false};},progress:[],failRegistrySave:false,calls:{bridge:0,exports:0,pdf:0,renderPdf:0,encrypt:0}};
  class InjectableProfiles extends CompanyProfiles{async save(value){if(controls.failRegistrySave)throw new Error('SIMULATED_REGISTRY_WRITE_FAILURE');return super.save(value);}}
  const handles=new Map();const mainFrame={url:pathToFileURL(path.join(appDirectory,'index.html')).href};const webContents={mainFrame,send:(channel,message)=>{if(channel==='progress')controls.progress.push(message);}};const window={webContents,isDestroyed:()=>false};
  const electron={
@@ -23,7 +23,7 @@ async function harness(t,{two=true}={}){
   shell:{openPath:async()=>'',openExternal:async()=>{}},Menu:{},dialog:{},screen:{}
  };
  const mockExports={...realRequire('./exports.cjs'),exportExcel:async(...args)=>{controls.calls.exports++;return controls.exportExcel(...args);},exportZip:async()=>{controls.calls.exports++;return {count:1,filename:'synthetic.zip'};}};
- function requireForTest(name){if(name==='electron')return electron;if(name==='./company-profiles.cjs')return {...realRequire(name),CompanyProfiles:InjectableProfiles};if(name==='./bridge-runner.cjs')return {createBridgeRunner:()=>async(input,listener)=>{controls.calls.bridge++;if(input.op==='download')return controls.download(input,listener);assert.equal(input.op,'probe','Only offline fixture operations allowed');return controls.probe(input);}};if(name==='./exports.cjs')return mockExports;return realRequire(name);}
+ function requireForTest(name){if(name==='electron')return electron;if(name==='./pdf-renderer.cjs')return {createPdfRenderer:()=>{const render=async(...args)=>{controls.calls.renderPdf++;return controls.renderPdf(...args);};render.dispose=()=>{};return render;}};if(name==='./company-profiles.cjs')return {...realRequire(name),CompanyProfiles:InjectableProfiles};if(name==='./bridge-runner.cjs')return {createBridgeRunner:()=>async(input,listener)=>{controls.calls.bridge++;if(input.op==='download')return controls.download(input,listener);assert.equal(input.op,'probe','Only offline fixture operations allowed');return controls.probe(input);}};if(name==='./exports.cjs')return mockExports;return realRequire(name);}
  const context=vm.createContext({require:requireForTest,__dirname:appDirectory,__filename:mainFile,Buffer,AbortController,setTimeout,clearTimeout,process:{argv:['node','offline-context-test'],platform:process.platform,env:{}},console:{log:()=>{},error:()=>{}},module:{exports:{}}});
  const source=await fs.readFile(mainFile,'utf8');vm.runInContext(source+'\n globalThis.__testAccess={register,setWindow:value=>{win=value;},safeErrors};',context,{filename:mainFile});context.__testAccess.setWindow(window);context.__testAccess.register();
  async function invoke(name,args=[],scope){assert.ok(handles.has(name),`Expected real IPC handler ${name}`);return handles.get(name)({sender:webContents,senderFrame:mainFrame},...args,...(scope!==undefined?[{__profileId:scope}]:[]));}
@@ -100,4 +100,62 @@ test('Completed real download IPC returns its result and forwards reported rate-
 test('A partial two-role download reports the failed role rather than full success',async t=>{
  const h=await harness(t);h.controls.download=async(input,listener)=>{if(input.role==='sales')throw Error('KSEF_HTTP_403');await listener({type:'manifest',invoices:[]});return {type:'done',continuation:'2026-10-10T12:00:00Z',truncated:false};};
  const result=await h.invoke('download',[{kind:'history',role:'both'}],h.aId);assert.equal(result.ok,true);assert.equal(result.value.complete,false);assert.equal(result.value.failures[0].role,'sales');assert.equal(result.value.results[0].role,'purchase');
+});
+
+function oneInvoice(h,{id='SYNTHETIC-REFRESH',truncated=false}={}){
+ const xml=Buffer.from('<fictional-refresh/>');const {hash}=realRequire('./archive.cjs');
+ const meta={id,number:'FV/TEST/REFRESH',date:'2026-09-11',seller:'Fikcyjny dostawca',sellerNip:NIP_B,gross:123,currency:'PLN',hash:hash(xml)};
+ h.controls.download=async(input,listener)=>{
+  await listener({type:'manifest',invoices:[meta]});
+  await listener({type:'invoice',id,xml:xml.toString('base64')});
+  assert.equal(h.controls.calls.renderPdf,0,'PDF rendering must start only after the helper completes');
+  return {type:'done',continuation:'2026-10-10T12:00:00Z',truncated};
+ };
+ return {id,xml};
+}
+
+test('A failed PDF still confirms the KSeF list refresh, counts its new invoice and persists it after reload',async t=>{
+ const h=await harness(t);oneInvoice(h);h.controls.renderPdf=async()=>{throw Error('PDF_TIMEOUT');};
+ const result=await h.invoke('download',[{kind:'monthly',month:'2026-09',role:'purchase'}],h.aId);
+ assert.equal(result.ok,true);assert.equal(result.value.complete,false);assert.equal(result.value.missing,1);assert.equal(result.value.saved,0);assert.equal(result.value.added,0);assert.equal(result.value.newInvoices,1);assert.equal(result.value.refreshed,1);
+ const status=(await h.invoke('status')).value;const refresh=status.roleStatuses.purchase.ksefRefresh;
+ assert.equal(refresh.lastAttempt.status,'success');assert.equal(refresh.lastSuccess.kind,'monthly');assert.equal(refresh.lastSuccess.dateFrom,'2026-09-01');assert.equal(refresh.lastSuccess.dateTo,'2026-09-30');assert.equal(refresh.lastSuccess.count,1);assert.equal(refresh.lastSuccess.newInvoices,1);assert.ok(Number.isFinite(Date.parse(refresh.lastSuccess.time)));
+ assert.equal(status.roleStatuses.purchase.lastRun,null);assert.equal(status.roleStatuses.purchase.continuation,null);assert.equal(status.roleStatuses.purchase.coverage.length,0);assert.equal(status.roleStatuses.sales.ksefRefresh,null);
+ const query=(await h.invoke('query',[{role:'purchase',period:{kind:'all'}}],h.aId)).value;
+ assert.equal(query.rows.length,1);assert.equal(query.rows[0].status,'xml-only');assert.equal(query.ksefRefresh.lastSuccess.time,refresh.lastSuccess.time);
+ assert.ok(h.controls.progress.findIndex(p=>p.stage==='ksef-refreshed')<h.controls.progress.findIndex(p=>p.stage==='preparing-pdfs'));
+ const {Archive}=realRequire('./archive.cjs');const reloaded=await new Archive(h.documents,NIP_A,'test','purchase').load();assert.equal(reloaded.state.ksefRefresh.lastSuccess.time,refresh.lastSuccess.time);
+ for(const [nip,environment,role] of [[NIP_A,'prod','purchase'],[NIP_B,'test','purchase'],[NIP_A,'test','sales']])assert.equal((await new Archive(h.documents,nip,environment,role).load()).state.ksefRefresh,undefined);
+});
+
+test('The successful refresh is durable and visible while PDF generation is still waiting; cancelling PDF keeps it',async t=>{
+ const h=await harness(t);oneInvoice(h);const entered=deferred(),release=deferred();h.controls.renderPdf=async()=>{entered.resolve();await release.promise;throw Error('PDF_TIMEOUT');};
+ const downloading=h.invoke('download',[{kind:'incremental',role:'purchase'}],h.aId);await entered.promise;
+ let refreshedAt;
+ try{
+  const status=(await h.invoke('status')).value;assert.equal(status.busy,true);const refresh=status.roleStatuses.purchase.ksefRefresh;refreshedAt=refresh.lastSuccess.time;assert.equal(refresh.lastAttempt.status,'success');assert.equal(refresh.lastSuccess.from,h.a.bootstrapFrom);assert.equal(refresh.lastSuccess.through,'2026-10-10T12:00:00Z');
+  assert.equal((await h.invoke('cancel')).value,true);
+ }finally{release.resolve();}
+ const result=await downloading;assert.equal(result.ok,false);assert.equal(result.code,'CANCELLED');
+ const status=(await h.invoke('status')).value;assert.equal(status.busy,false);assert.equal(status.roleStatuses.purchase.ksefRefresh.lastSuccess.time,refreshedAt);assert.equal(status.roleStatuses.purchase.ksefRefresh.lastAttempt.status,'success');assert.equal(status.roleStatuses.purchase.continuation,null);
+});
+
+test('API failure, missing bridge documents and cancellation retain the previous successful refresh timestamp',async t=>{
+ const h=await harness(t);await h.invoke('download',[{kind:'incremental',role:'purchase'}],h.aId);const successful=(await h.invoke('status')).value.roleStatuses.purchase.ksefRefresh.lastSuccess;
+ assert.equal(successful.count,0);assert.equal(successful.newInvoices,0);
+ for(const [code,expectedStatus] of [['KSEF_HTTP_403','failed'],['INCOMPLETE_DOWNLOAD','incomplete'],['CANCELLED','cancelled']]){
+  h.controls.download=async()=>{throw Error(code);};const result=await h.invoke('download',[{kind:'incremental',role:'purchase'}],h.aId);assert.equal(result.ok,false);
+  const refresh=(await h.invoke('status')).value.roleStatuses.purchase.ksefRefresh;assert.equal(refresh.lastAttempt.status,expectedStatus);assert.equal(refresh.lastSuccess.time,successful.time);assert.equal(refresh.lastSuccess.count,0);
+ }
+ const entered=deferred(),release=deferred();h.controls.download=async(_input,listener)=>{await listener({type:'manifest',invoices:[]});entered.resolve();await release.promise;return {type:'done',continuation:'2026-10-10T12:00:00Z',truncated:false};};
+ const downloading=h.invoke('download',[{kind:'incremental',role:'purchase'}],h.aId);await entered.promise;try{assert.equal((await h.invoke('cancel')).value,true);}finally{release.resolve();}
+ assert.equal((await downloading).code,'CANCELLED');const refresh=(await h.invoke('status')).value.roleStatuses.purchase.ksefRefresh;assert.equal(refresh.lastAttempt.status,'cancelled');assert.equal(refresh.lastSuccess.time,successful.time);
+});
+
+test('Incomplete and truncated helper responses never establish a successful KSeF refresh',async t=>{
+ const h=await harness(t);h.controls.download=async(_input,listener)=>{await listener({type:'manifest',invoices:[{id:'MISSING'}]});return {type:'done',continuation:'2026-10-10T12:00:00Z',truncated:false};};
+ assert.equal((await h.invoke('download',[{kind:'incremental',role:'purchase'}],h.aId)).ok,false);
+ let refresh=(await h.invoke('status')).value.roleStatuses.purchase.ksefRefresh;assert.equal(refresh.lastSuccess,null);assert.equal(refresh.lastAttempt.status,'incomplete');
+ oneInvoice(h,{truncated:true});const result=await h.invoke('download',[{kind:'incremental',role:'purchase'}],h.aId);assert.equal(result.ok,true);assert.equal(result.value.complete,false);assert.equal(result.value.refreshed,0);
+ refresh=(await h.invoke('status')).value.roleStatuses.purchase.ksefRefresh;assert.equal(refresh.lastSuccess,null);assert.equal(refresh.lastAttempt.status,'incomplete');assert.equal(h.controls.progress.some(p=>p.stage==='ksef-refreshed'),false);
 });

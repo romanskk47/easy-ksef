@@ -46,6 +46,36 @@ class Archive {
   }
   async guardFile(relative,create=false){return guardedPath(this.base,this.absolute(relative),{create});}
   async guardDirectory(relative='',create=false){return guardedPath(this.base,relative?this.absolute(relative):this.root,{create,directory:true});}
+  async verifiedXml(id) {
+    const record=this.state.documents[id];if(!record)return false;
+    try{return hash(await fs.readFile(await this.guardFile(record.xml)))===record.hash;}catch{return false;}
+  }
+  async beginRefresh({kind,dateFrom,dateTo,from}) {
+    if(!['incremental','history','monthly','range'].includes(kind))throw new Error('INVALID_RANGE');
+    const time=new Date().toISOString();
+    const attempt={time,startedAt:time,status:'running',kind,dateFrom:dateFrom||null,dateTo:dateTo||null,from:['incremental','history'].includes(kind)?from:null,through:null,count:null,newInvoices:null};
+    this.state.ksefRefresh={lastSuccess:this.state.ksefRefresh?.lastSuccess||null,lastAttempt:attempt};
+    await this.persist();
+  }
+  async completeRefresh(expected,{continuation,truncated,newInvoices=0}) {
+    const attempt=this.state.ksefRefresh?.lastAttempt;if(!attempt||attempt.status!=='running')throw new Error('INVALID_REFRESH');
+    const distinct=[...new Set(expected)];
+    for(const id of distinct)if(!await this.verifiedXml(id))throw new Error('INCOMPLETE_DOWNLOAD');
+    const incremental=['incremental','history'].includes(attempt.kind);
+    if(incremental&&(!continuation||!/^\d{4}-\d{2}-\d{2}T.*(?:Z|\+00:00)$/.test(continuation)||!Number.isFinite(Date.parse(continuation))||!Number.isFinite(Date.parse(attempt.from))||Date.parse(continuation)<Date.parse(attempt.from)))throw new Error('MISSING_CONTINUATION');
+    const completed={...attempt,time:new Date().toISOString(),through:incremental?continuation:null,count:distinct.length,newInvoices};
+    delete completed.status;
+    this.state.ksefRefresh={lastSuccess:truncated?this.state.ksefRefresh.lastSuccess:completed,lastAttempt:{...completed,status:truncated?'incomplete':'success'}};
+    await this.persist();return !truncated;
+  }
+  async failRefresh(status) {
+    if(!['cancelled','failed','incomplete'].includes(status))throw new Error('INVALID_REFRESH');
+    // Once XML and the complete KSeF response were confirmed, a later PDF
+    // failure or cancellation cannot turn that successful check into failure.
+    if(this.state.ksefRefresh?.lastAttempt?.status!=='running')return;
+    this.state.ksefRefresh.lastAttempt={...this.state.ksefRefresh.lastAttempt,time:new Date().toISOString(),status};
+    await this.persist();
+  }
   async verified(id) {
     const record = this.state.documents[id]; if (!record || record.status !== 'ready') return false;
     try { const xml = await fs.readFile(await this.guardFile(record.xml)); const pdf = await fs.readFile(await this.guardFile(record.pdf)); return hash(xml)===record.hash && hash(pdf)===record.pdfHash && pdf.subarray(0,5).toString()==='%PDF-'; } catch { return false; }

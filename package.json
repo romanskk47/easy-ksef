@@ -1,6 +1,6 @@
 {
   "name": "easy-ksef",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "description": "Pobieraj faktury z KSeF i zapisuj PDF oraz XML na swoim komputerze.",
   "author": "Piotr Romański",
