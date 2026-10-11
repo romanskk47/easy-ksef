@@ -17,8 +17,8 @@ To bezpłatna, otwarta **wersja pilotażowa**. Instalatory nie mają jeszcze pod
 | Windows | [Instalator .exe](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-win-x64.exe) | Windows 10 lub 11, 64-bit |
 | Mac z procesorem Apple M1/M2/M3/M4 lub nowszym | [Instalator .dmg](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-mac-arm64.dmg) | macOS 13 lub nowszy |
 | Mac z procesorem Intel | [Instalator .dmg](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-mac-x64.dmg) | macOS 13 lub nowszy |
-| Linux | [AppImage](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-linux-x64.AppImage) | x86-64, środowisko graficzne i systemowy sejf haseł |
-| Ubuntu / Debian | [Pakiet .deb](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-linux-x64.deb) | x86-64, środowisko graficzne i systemowy sejf haseł |
+| Linux | [AppImage](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-linux-x86_64.AppImage) | x86-64, środowisko graficzne i systemowy sejf haseł |
+| Ubuntu / Debian | [Pakiet .deb](https://github.com/romanskk47/easy-ksef/releases/download/v0.4.0/Easy-KSeF-0.4.0-linux-amd64.deb) | x86-64, środowisko graficzne i systemowy sejf haseł |
 
 Nie potrzebujesz Pythona, Node.js ani osobnej instalacji .NET. Na Macu sprawdzisz procesor w menu Apple → **Ten Mac**. Wersje ZIP dla Maca i sumy SHA-256 są na [stronie wydania](https://github.com/romanskk47/easy-ksef/releases/tag/v0.4.0).
 

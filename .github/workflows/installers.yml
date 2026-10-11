@@ -115,7 +115,8 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         shell: bash
         run: |
-          cd release-assets
+          # Uploading dist/* and artifacts/* retains both folders in each artifact.
+          cd release-assets/dist
           cat SHA256SUMS-*.txt > SHA256SUMS.txt
           sha256sum --check SHA256SUMS.txt
-          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --draft --prerelease --title "Easy KSeF $RELEASE_TAG — wersja testowa" --notes-file ../RELEASE-NOTES.md Easy-KSeF-* SHA256SUMS.txt smoke-*.json
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --draft --prerelease --title "Easy KSeF $RELEASE_TAG — wersja testowa" --notes-file ../../RELEASE-NOTES.md Easy-KSeF-* SHA256SUMS.txt ../artifacts/smoke-*.json

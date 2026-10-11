@@ -9,7 +9,7 @@ Pobieraj faktury zakupowe i sprzedażowe z KSeF do własnego folderu. Program za
 | Windows 10/11, 64-bit | `Easy-KSeF-0.4.0-win-x64.exe` |
 | Mac z Apple Silicon | `Easy-KSeF-0.4.0-mac-arm64.dmg` |
 | Mac z Intelem | `Easy-KSeF-0.4.0-mac-x64.dmg` |
-| Linux, x86-64 | `Easy-KSeF-0.4.0-linux-x64.AppImage` lub `Easy-KSeF-0.4.0-linux-x64.deb` |
+| Linux, x86-64 | `Easy-KSeF-0.4.0-linux-x86_64.AppImage` lub `Easy-KSeF-0.4.0-linux-amd64.deb` |
 
 Na Macu wymagany jest macOS 13+. Wersje ZIP oraz sumy SHA-256 są również w załącznikach wydania. [Instrukcja instalacji](https://github.com/romanskk47/easy-ksef/blob/main/docs/instalacja.md).
 
